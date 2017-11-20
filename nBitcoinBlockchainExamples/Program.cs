@@ -3,9 +3,9 @@ using NBitcoin;
 
 namespace nBitcoinBlockchainExamples
 {
-    public class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             // Private keys are often represented in Base58Check called a Bitcoin Secret
             // (also known as Wallet Import Format or simply WIF), like Bitcoin Addresses.
