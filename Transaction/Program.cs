@@ -13,22 +13,6 @@ namespace Transaction
     {
         private static void Main(string[] args)
         {
-            var transaction = GetTxResponse().GetAwaiter();
-            var result = transaction.GetResult();
-
-
-            Console.WriteLine(transaction);
-
-            // get NBitcoin.Transaction type
-            var nBitcoinTransaction = result.Transaction;
-
-            Console.WriteLine(nBitcoinTransaction);
-
-
-        }
-
-        private static async Task<GetTransactionResponse> GetTxResponse()
-        {
             // create client
             var client = new QBitNinjaClient(Network.Main);
 
@@ -36,9 +20,21 @@ namespace Transaction
             var transactionId = uint256.Parse("f13dc48fb035bbf0a6e989a26b3ecb57b84f85e0836e777d6edf60d87a4a2d94");
 
             // query tx
-            var transactionResponse = await client.GetTransaction(transactionId);
+            var transactionResponse = client.GetTransaction(transactionId).Result;
 
-            return transactionResponse;
+            // get NBitcoin.Transaction type
+            var nBitcoinTransaction = transactionResponse.Transaction;
+
+
+            Console.WriteLine(transactionResponse);
+
+
+
+            Console.WriteLine(nBitcoinTransaction);
+
+
+
+            Console.ReadLine();
         }
     }
 }
