@@ -20,19 +20,16 @@ namespace Transaction
             var transactionId = uint256.Parse("f13dc48fb035bbf0a6e989a26b3ecb57b84f85e0836e777d6edf60d87a4a2d94");
 
             // query tx
-            var transactionResponse = client.GetTransaction(transactionId).Result;
+            GetTransactionResponse transactionResponse = client.GetTransaction(transactionId).Result;
 
             // get NBitcoin.Transaction type
-            var nBitcoinTransaction = transactionResponse.Transaction;
+            NBitcoin.Transaction nBitcoinTransaction = transactionResponse.Transaction;
 
+            var fromTransactionClass = nBitcoinTransaction.GetHash();
 
-            Console.WriteLine(transactionResponse);
+            var fromGetTransactionResponseClass = transactionResponse.TransactionId;
 
-
-
-            Console.WriteLine(nBitcoinTransaction);
-
-
+            Console.WriteLine(fromTransactionClass == transactionId && fromGetTransactionResponseClass == transactionId);
 
             Console.ReadLine();
         }
