@@ -31,6 +31,48 @@ namespace Transaction
 
             Console.WriteLine(fromTransactionClass == transactionId && fromGetTransactionResponseClass == transactionId);
 
+            List<ICoin> receivedCoins = transactionResponse.ReceivedCoins;
+
+            // received coins
+            foreach (var coin in receivedCoins)
+            {
+                Money amount = coin.Amount as Money;
+                Console.WriteLine(amount?.ToDecimal(MoneyUnit.BTC));
+
+                var paymentScript = coin.TxOut.ScriptPubKey;
+                Console.WriteLine(paymentScript);
+
+                var address = paymentScript.GetDestinationAddress(Network.Main);
+                Console.WriteLine(address);
+
+            }
+
+            // outputs
+            TxOutList outputs = nBitcoinTransaction.Outputs;
+
+            foreach (var output in outputs)
+            {
+                Money amount = output.Value;
+                Console.WriteLine(amount.ToDecimal(MoneyUnit.BTC));
+
+                var paymentScript = output.ScriptPubKey;
+                Console.WriteLine(paymentScript);
+
+                var address = paymentScript.GetDestinationAddress(Network.Main);
+                Console.Write(address);
+            }
+
+            // inputs
+            TxInList inputs = nBitcoinTransaction.Inputs;
+
+            foreach (var input in inputs)
+            {
+                OutPoint previousOutPoint = input.PrevOut;
+                Console.WriteLine(previousOutPoint);
+                Console.WriteLine(previousOutPoint.Hash); // hash of prev tx
+                Console.WriteLine(previousOutPoint.N); // idx of out from prev tx, that has been spent in current tx
+            }
+
             Console.ReadLine();
         }
     }
