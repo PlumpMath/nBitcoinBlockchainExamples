@@ -34,6 +34,7 @@ namespace Transaction
             List<ICoin> receivedCoins = transactionResponse.ReceivedCoins;
 
             // received coins
+            Console.WriteLine("Begin received coins");
             foreach (var coin in receivedCoins)
             {
                 Money amount = coin.Amount as Money;
@@ -50,6 +51,7 @@ namespace Transaction
             // outputs
             TxOutList outputs = nBitcoinTransaction.Outputs;
 
+            Console.WriteLine("Begin outputs");
             foreach (var output in outputs)
             {
                 Money amount = output.Value;
@@ -59,19 +61,32 @@ namespace Transaction
                 Console.WriteLine(paymentScript);
 
                 var address = paymentScript.GetDestinationAddress(Network.Main);
-                Console.Write(address);
+                Console.WriteLine(address);
             }
 
             // inputs
             TxInList inputs = nBitcoinTransaction.Inputs;
 
+            Console.WriteLine("Begin inputs");
             foreach (var input in inputs)
             {
                 OutPoint previousOutPoint = input.PrevOut;
                 Console.WriteLine(previousOutPoint);
                 Console.WriteLine(previousOutPoint.Hash); // hash of prev tx
-                Console.WriteLine(previousOutPoint.N); // idx of out from prev tx, that has been spent in current tx
+                Console.WriteLine(previousOutPoint.N); // index of out from prev tx, that has been spent in current tx
             }
+
+            // The terms TxOut, Output and out are synonymous.
+
+            // create a txout with 21 bitcoin from the first ScriptPubKey in our current transaction:
+            Console.WriteLine("Begin txout");
+            Money twentyBtc = new Money(21, MoneyUnit.BTC);
+            var scriptPubKey = nBitcoinTransaction.Outputs.FirstOrDefault()?.ScriptPubKey;
+            TxOut txOut = new TxOut(twentyBtc, scriptPubKey);
+
+            Console.WriteLine(txOut.Value.ToDecimal(MoneyUnit.BTC));
+            Console.WriteLine(txOut.ScriptPubKey);
+
 
             Console.ReadLine();
         }
