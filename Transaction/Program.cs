@@ -87,6 +87,23 @@ namespace Transaction
             Console.WriteLine(txOut.Value.ToDecimal(MoneyUnit.BTC));
             Console.WriteLine(txOut.ScriptPubKey);
 
+            // every TxOut is uniq addressed by at the blockchain level by the id of the tx, including the index
+            // e.g., OutPoint of TxOut is 
+
+            Console.WriteLine("Begin outpoint");
+            OutPoint firstOutPoint = receivedCoins.FirstOrDefault()?.Outpoint;
+            Console.WriteLine(firstOutPoint?.Hash);
+            Console.WriteLine(firstOutPoint?.N);
+
+            Console.WriteLine("Begin txin");
+            // TxIn is composed of the Outpoint of the TxOut being spent and of the ScriptSig (we can see the ScriptSig as the “Proof of Ownership”).
+            // with the previous transaction ID, we can review the info associated with that tx
+            OutPoint firstPreviousOutPoint = nBitcoinTransaction.Inputs.FirstOrDefault()?.PrevOut;
+            if (firstPreviousOutPoint != null)
+            {
+                var firstPreviousTransaction = client.GetTransaction(firstPreviousOutPoint.Hash).Result.Transaction;
+                Console.WriteLine(firstPreviousTransaction.IsCoinBase);
+            }
 
             Console.ReadLine();
         }
