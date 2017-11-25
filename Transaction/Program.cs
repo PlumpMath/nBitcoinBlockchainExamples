@@ -105,7 +105,26 @@ namespace Transaction
                 Console.WriteLine(firstPreviousTransaction.IsCoinBase);
             }
 
+            Console.WriteLine("begin coin base hunt");
+            TraceCoinBase(nBitcoinTransaction, client);
             Console.ReadLine();
+        }
+
+        public static void TraceCoinBase(NBitcoin.Transaction nBitcoinTransaction, QBitNinjaClient client)
+        {
+            var first = nBitcoinTransaction.Inputs.FirstOrDefault();
+            if (first != null)
+            {
+                var firstPrevOut = first.PrevOut;
+                var transaction = client.GetTransaction(firstPrevOut.Hash).Result.Transaction;
+                if (!transaction.IsCoinBase)
+                {
+                    Console.WriteLine($"{firstPrevOut} not coinbase");
+                    TraceCoinBase(transaction, client);
+                }
+                Console.WriteLine($"{firstPrevOut} is coinbase");
+            }
+
         }
     }
 }
