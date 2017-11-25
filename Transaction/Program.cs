@@ -106,10 +106,24 @@ namespace Transaction
             }
 
             Console.WriteLine("begin coin base hunt");
-            TraceCoinBase(nBitcoinTransaction, client);
+            //TraceCoinBase(nBitcoinTransaction, client); just done as an exercise, do not use
+
+
+            Console.WriteLine("begin total output value count");
+            var spentCoins = transactionResponse.SpentCoins;
+
+            var spentAmount = Money.Zero;
+            foreach (var spentCoin in spentCoins)
+            {
+                spentAmount =  (Money)spentCoin.Amount.Add(spentAmount);
+            }
+
+            Console.WriteLine(spentAmount.ToDecimal(MoneyUnit.BTC));
+
             Console.ReadLine();
         }
 
+        // inefficent example done from book
         public static void TraceCoinBase(NBitcoin.Transaction nBitcoinTransaction, QBitNinjaClient client)
         {
             var first = nBitcoinTransaction.Inputs.FirstOrDefault();
