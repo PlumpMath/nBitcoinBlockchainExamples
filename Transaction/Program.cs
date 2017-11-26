@@ -113,10 +113,22 @@ namespace Transaction
             var spentCoins = transactionResponse.SpentCoins;
 
             var spentAmount = spentCoins.Aggregate(Money.Zero,
-                (money, next) => 
-                    (Money) next.Amount.Add(money));
+                (money, next) =>
+                    (Money) next.Amount.Add(money)).ToDecimal(MoneyUnit.BTC);
 
-            Console.WriteLine(spentAmount.ToDecimal(MoneyUnit.BTC));
+            Console.WriteLine(spentAmount);
+
+            var receivedAmount = receivedCoins.Aggregate(Money.Zero,
+                (money, next) =>
+                    (Money) next.Amount.Add(money)).ToDecimal(MoneyUnit.BTC);
+
+            Console.WriteLine(receivedAmount);
+
+            Console.WriteLine(spentAmount - receivedAmount); // fee
+
+            var fee = nBitcoinTransaction.GetFee(spentCoins.ToArray()).ToDecimal(MoneyUnit.BTC);
+
+            Console.WriteLine(fee);
 
             Console.ReadLine();
         }
