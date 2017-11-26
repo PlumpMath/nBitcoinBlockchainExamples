@@ -112,11 +112,9 @@ namespace Transaction
             Console.WriteLine("begin total output value count");
             var spentCoins = transactionResponse.SpentCoins;
 
-            var spentAmount = Money.Zero;
-            foreach (var spentCoin in spentCoins)
-            {
-                spentAmount =  (Money)spentCoin.Amount.Add(spentAmount);
-            }
+            var spentAmount = spentCoins.Aggregate(Money.Zero,
+                (money, next) => 
+                    (Money) next.Amount.Add(money));
 
             Console.WriteLine(spentAmount.ToDecimal(MoneyUnit.BTC));
 
