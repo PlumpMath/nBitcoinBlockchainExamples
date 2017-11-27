@@ -130,6 +130,8 @@ namespace Transaction
 
             Console.WriteLine(fee);
 
+            // note: there are no fee in a coinbase transaction
+
             Console.ReadLine();
         }
 
