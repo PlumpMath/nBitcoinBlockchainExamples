@@ -42,7 +42,18 @@ namespace SpendYourCoins
             Console.WriteLine(transactionResponse.TransactionId);
             Console.WriteLine(transactionResponse.Block.Confirmations);
 
+            // spend second outpoint
+            var receivedCoins = transactionResponse.ReceivedCoins;
 
+            var coinToSpend = receivedCoins.FirstOrDefault(rc => rc.TxOut.ScriptPubKey == importedBitcoinPrivateKey.ScriptPubKey);
+
+            if (coinToSpend == null)
+            {
+                Console.WriteLine("txOut doesn't contain ScriptPubKey");
+                return;
+            }
+
+            Console.WriteLine("we want to spend{0}. outpoint: ", coinToSpend.Outpoint.N +1);
             Console.ReadLine();
         }
     }
