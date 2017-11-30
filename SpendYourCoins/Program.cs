@@ -42,7 +42,7 @@ namespace SpendYourCoins
             Console.WriteLine(transactionResponse.TransactionId);
             Console.WriteLine(transactionResponse.Block.Confirmations);
 
-            // spend second outpoint
+            // FROM: coin to spend
             var receivedCoins = transactionResponse.ReceivedCoins;
 
             var coinToSpend = receivedCoins.FirstOrDefault(rc => rc.TxOut.ScriptPubKey == importedBitcoinPrivateKey.ScriptPubKey);
@@ -53,7 +53,44 @@ namespace SpendYourCoins
                 return;
             }
 
-            Console.WriteLine("we want to spend{0}. outpoint: ", coinToSpend.Outpoint.N +1);
+            var outPointToSpend = coinToSpend.Outpoint;
+
+            Console.WriteLine("we want to spend{0}. outpoint: ", outPointToSpend.N +1);
+
+            // transaction to send
+            var transaction = new Transaction
+            {
+                Inputs =
+                {
+                    new TxIn
+                    {
+                        PrevOut = outPointToSpend
+                    }
+                }
+            };
+
+            // TO: address to send to
+            // change this to testnet address when actually sending
+            var hallOfTheMakerAddress = BitcoinAddress.Create("mzp4No5cmCXjZUpf112B1XWsvWBfws5bbB");
+
+            // AMOUNT: how much btc to send
+            var hallOfTheMakersTxOut = new TxOut
+            {
+                Value = new Money((decimal) 0.5, MoneyUnit.BTC),
+                ScriptPubKey = hallOfTheMakerAddress.ScriptPubKey
+            };
+
+            // change back
+            var changeBackTxOut = new TxOut
+            {
+                Value = new Money((decimal) 0.4999, MoneyUnit.BTC),
+                ScriptPubKey = importedBitcoinPrivateKey.ScriptPubKey
+            };
+
+            transaction.Outputs.Add(hallOfTheMakersTxOut);
+            transaction.Outputs.Add(changeBackTxOut);
+
+
             Console.ReadLine();
         }
     }
