@@ -74,21 +74,37 @@ namespace SpendYourCoins
             var hallOfTheMakerAddress = BitcoinAddress.Create("mzp4No5cmCXjZUpf112B1XWsvWBfws5bbB");
 
             // AMOUNT: how much btc to send
+            var hallOfTheMakersAmount = new Money(0.5m, MoneyUnit.BTC);
             var hallOfTheMakersTxOut = new TxOut
             {
-                Value = new Money((decimal) 0.5, MoneyUnit.BTC),
+                Value = hallOfTheMakersAmount,
                 ScriptPubKey = hallOfTheMakerAddress.ScriptPubKey
             };
+
+            var minerFee = new Money(0.0001m, MoneyUnit.BTC);
+            var txInAmount = (Money)receivedCoins[(int) outPointToSpend.N].Amount;
+            var changeBackAmount = txInAmount - hallOfTheMakersAmount - minerFee;
+
 
             // change back
             var changeBackTxOut = new TxOut
             {
-                Value = new Money((decimal) 0.4999, MoneyUnit.BTC),
+                Value = changeBackAmount,
                 ScriptPubKey = importedBitcoinPrivateKey.ScriptPubKey
             };
 
             transaction.Outputs.Add(hallOfTheMakersTxOut);
             transaction.Outputs.Add(changeBackTxOut);
+
+            // message on blockchain
+            const string message = "varsnotwars loves nBitcoin";
+            var bytes = Encoding.UTF8.GetBytes(message);
+            transaction.Outputs.Add(new TxOut
+            {
+                Value =  Money.Zero,
+                ScriptPubKey = TxNullDataTemplate.Instance.GenerateScriptPubKey(bytes)
+            });
+
 
 
             Console.ReadLine();
