@@ -105,7 +105,15 @@ namespace SpendYourCoins
                 ScriptPubKey = TxNullDataTemplate.Instance.GenerateScriptPubKey(bytes)
             });
 
+            // sign tx
+            // get ScriptSig
+            transaction.Inputs[0].ScriptSig = importedBitcoinPrivateKey.ScriptPubKey;
 
+            // provide private key
+            transaction.Sign(importedBitcoinPrivateKey, false);
+
+
+            Console.WriteLine(transaction);
 
             Console.ReadLine();
         }
