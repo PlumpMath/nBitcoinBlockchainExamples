@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using NBitcoin;
+using NBitcoin.Protocol;
 using QBitNinja.Client;
+using QBitNinja.Client.Models;
 
 namespace SpendYourCoins
 {
@@ -112,6 +115,33 @@ namespace SpendYourCoins
             // provide private key
             transaction.Sign(importedBitcoinPrivateKey, false);
 
+
+            // propagate your transaction
+            // with QBitNinja:
+            BroadcastResponse broadcastResponse = client.Broadcast(transaction).Result;
+
+            if (broadcastResponse.Success)
+            {
+                Console.WriteLine($"ErrorCode: ${broadcastResponse.Error.ErrorCode}");
+                Console.WriteLine($"Error message: ${broadcastResponse.Error.Reason}");
+            }
+            else
+            {
+                Console.WriteLine("Success! You can check out of the hash of the transaction");
+                Console.WriteLine(transaction.GetHash());
+            }
+
+            // with bitcoin core:
+            using (var node = Node.ConnectToLocal(network)) // connect to node
+            {
+                node.VersionHandshake(); // say hello
+
+                node.SendMessage(new InvPayload(InventoryType.MSG_TX, transaction.GetHash()));
+
+                // send
+                node.SendMessage(new TxPayload(transaction));
+                Thread.Sleep(500); 
+            }
 
             Console.WriteLine(transaction);
 
