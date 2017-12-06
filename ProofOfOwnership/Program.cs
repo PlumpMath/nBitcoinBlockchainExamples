@@ -33,6 +33,28 @@ namespace ProofOfOwnership
 
             Console.WriteLine(isDorierTheBookAddressOwner);
 
+            // get first genisis block
+            Block genesisBlock = Network.Main.GetGenesis();
+
+            // get first tx
+            Transaction firstEverTransaction = genesisBlock.Transactions.FirstOrDefault();
+
+            // get first output
+            TxOut firstEverOutput = firstEverTransaction?.Outputs.FirstOrDefault();
+
+            // get first script pub key
+            Script firstEverScriptPubKey = firstEverOutput?.ScriptPubKey;
+
+            // get first public key
+            PubKey firstEverPubKey = firstEverScriptPubKey?.GetDestinationPublicKeys().FirstOrDefault();
+
+            // get bitcoin address from public key with network identifier
+            BitcoinPubKeyAddress firstEverBitcoinAddress = firstEverPubKey?.GetAddress(Network.Main);
+
+            Console.WriteLine($"{genesisBlock}\n{firstEverTransaction}\n" +
+                              $"{firstEverOutput}\n{firstEverScriptPubKey}\n" +
+                              $"{firstEverPubKey}\n{firstEverBitcoinAddress}");
+
             Console.ReadLine();
         }
     }
