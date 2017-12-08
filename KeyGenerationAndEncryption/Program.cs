@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 using NBitcoin;
@@ -26,7 +27,7 @@ namespace KeyGenerationAndEncryption
             // result = SHA(PRNG() ^ additionalEntropy)
 
             // Key Derivation Function is a way to have a stronger key, even if your entropy is low
-            // KDF is a hash function that waste computing resources on purpose.
+            // KDF is a hash function that wastes computing resources on purpose.
 
             var derived = SCrypt.BitcoinComputeDerivedKey("hello", new byte[] {1, 2, 3});
             RandomUtils.AddEntropy(derived);
@@ -34,6 +35,41 @@ namespace KeyGenerationAndEncryption
             // even if attacker knows that your source of entropy contains 5 letters,
             // they will need to run Scrypt to check each possibility
 
+            // standard for encrypting private key with a password using kdf is BIP38
+
+            var privateKey = new Key();
+            var bitcoinPrivateKey = privateKey.GetWif(Network.Main);
+
+            Console.WriteLine(bitcoinPrivateKey);
+
+            BitcoinEncryptedSecret encryptedBitcoinPrivateKey = bitcoinPrivateKey.Encrypt("password");
+
+            Console.WriteLine(encryptedBitcoinPrivateKey);
+
+            var decryptedBitcoinPrivateKey = encryptedBitcoinPrivateKey.GetKey("password");
+
+            Console.WriteLine(decryptedBitcoinPrivateKey);
+
+            Key keyFromIncorrectPassword = null;
+
+            Exception error = null;
+
+            try
+            {
+                keyFromIncorrectPassword = encryptedBitcoinPrivateKey.GetKey("lahsdlahsdlakhslkdash");
+            }
+            catch (Exception e)
+            {
+                error = e;
+            }
+
+            var result = keyFromIncorrectPassword != null
+                ? keyFromIncorrectPassword.ToString()
+                : error?.ToString();
+
+            Console.WriteLine(result);
+
+            Console.ReadLine();
         }
     }
 }
