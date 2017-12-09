@@ -43,11 +43,9 @@ namespace KeyGenerationAndEncryption
             Console.WriteLine(bitcoinPrivateKey);
 
             BitcoinEncryptedSecret encryptedBitcoinPrivateKey = bitcoinPrivateKey.Encrypt("password");
-
             Console.WriteLine(encryptedBitcoinPrivateKey);
 
             var decryptedBitcoinPrivateKey = encryptedBitcoinPrivateKey.GetKey("password");
-
             Console.WriteLine(decryptedBitcoinPrivateKey);
 
             Key keyFromIncorrectPassword = null;
@@ -65,9 +63,34 @@ namespace KeyGenerationAndEncryption
 
             var result = keyFromIncorrectPassword != null
                 ? keyFromIncorrectPassword.ToString()
-                : error?.ToString();
+                : $"{error?.GetType().Name ?? "Error"}: icorrect password";
 
             Console.WriteLine(result);
+
+
+            // how to delegate Key and Address creation to an untrusted peer
+
+            // create pass phrase code
+            BitcoinPassphraseCode passphraseCode = new BitcoinPassphraseCode("my secret", Network.Main, null);
+            Console.WriteLine(passphraseCode);
+
+            // then give passPhraseCode to 3rd party key generator
+
+            EncryptedKeyResult encryptedKeyResult = passphraseCode.GenerateEncryptedSecret();
+            var generatedAddress = encryptedKeyResult.GeneratedAddress;
+            var encryptedKey = encryptedKeyResult.EncryptedKey;
+
+            // used by 3rd party to confirm generated key and address correspond to password
+            var confirmationCode = encryptedKeyResult.ConfirmationCode;
+
+            // check
+            var isValid = confirmationCode.Check("my secret", generatedAddress);
+            Console.WriteLine(isValid);
+
+            var bitcoinPrivateKeyFromPassphraseCode = encryptedKey.GetSecret("my secret");
+            Console.WriteLine(bitcoinPrivateKeyFromPassphraseCode.GetAddress() == generatedAddress);
+
+            Console.WriteLine(bitcoinPrivateKey);
 
             Console.ReadLine();
         }
