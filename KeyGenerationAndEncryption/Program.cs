@@ -68,6 +68,7 @@ namespace KeyGenerationAndEncryption
             Console.WriteLine(result);
 
 
+            // BIP 38
             // how to delegate Key and Address creation to an untrusted peer
 
             // create pass phrase code
@@ -75,7 +76,8 @@ namespace KeyGenerationAndEncryption
             Console.WriteLine(passphraseCode);
 
             // then give passPhraseCode to 3rd party key generator
-
+            // third party can generate encrypted keys on your behalf
+            // without knowing your password and private key.
             EncryptedKeyResult encryptedKeyResult = passphraseCode.GenerateEncryptedSecret();
             var generatedAddress = encryptedKeyResult.GeneratedAddress;
             var encryptedKey = encryptedKeyResult.EncryptedKey;
@@ -91,6 +93,31 @@ namespace KeyGenerationAndEncryption
             Console.WriteLine(bitcoinPrivateKeyFromPassphraseCode.GetAddress() == generatedAddress);
 
             Console.WriteLine(bitcoinPrivateKey);
+
+            // BIP 32
+            // hierarchical deterministic wallets
+            // prevent outdated backups
+
+            var masterKey = new ExtKey();
+
+
+            Console.WriteLine($"Master Key: {masterKey.ToString(Network.Main)}");
+
+            for (uint i = 0; i < 5; i++)
+            {
+                ExtKey nextKey = masterKey.Derive(i);
+                Console.WriteLine($"Key {i} : {nextKey.ToString(Network.Main)}");
+            }
+
+            // go back from a Key to ExtKey by supplying the Key and the ChainCode to the ExtKey constructor.
+
+            var extKey = new ExtKey();
+            byte[] chainCode = extKey.ChainCode;
+            Key key = extKey.PrivateKey;
+
+            var newExtKey = new ExtKey(key, chainCode);
+
+            Console.WriteLine(extKey == newExtKey);
 
             Console.ReadLine();
         }
