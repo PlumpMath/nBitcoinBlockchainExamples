@@ -117,7 +117,30 @@ namespace KeyGenerationAndEncryption
 
             var newExtKey = new ExtKey(key, chainCode);
 
-            Console.WriteLine(extKey == newExtKey);
+            // the base58 type equivalent of ExtKey is BitcoinExtKey
+
+
+            // "neuter" master key so 3rd party can generate public keys without knowing private key
+            ExtPubKey masterPubKey = masterKey.Neuter();
+
+            for (uint i = 0; i < 5; i++)
+            {
+                ExtPubKey pubKey = masterPubKey.Derive(i);
+                Console.WriteLine($"PubKey {i} : {pubKey.ToString(Network.Main)}");
+            }
+
+            // get corresponding private key with master key
+            masterKey = new ExtKey();
+            masterPubKey = masterKey.Neuter();
+
+            // 3rd party generates pubkey1
+            ExtPubKey pubKey1 = masterPubKey.Derive(1);
+
+            // get privatekey of pubKey1
+            ExtKey key1 = masterKey.Derive(1);
+
+            Console.WriteLine($"Generated address: {pubKey1.PubKey.GetAddress(Network.Main)}");
+            Console.WriteLine($"Expected address: {key1.PrivateKey.PubKey.GetAddress(Network.Main)}");
 
             Console.ReadLine();
         }
