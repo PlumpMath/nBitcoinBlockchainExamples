@@ -142,6 +142,52 @@ namespace KeyGenerationAndEncryption
             Console.WriteLine($"Generated address: {pubKey1.PubKey.GetAddress(Network.Main)}");
             Console.WriteLine($"Expected address: {key1.PrivateKey.PubKey.GetAddress(Network.Main)}");
 
+            // deterministic keys
+            
+            // derive the 1st child of the 1st child
+
+            ExtKey parent = new ExtKey();
+            
+            // method 1:
+            ExtKey child11 = parent.Derive(1).Derive(1);
+
+            // method 2:
+            child11 = parent.Derive(new KeyPath("1/1"));
+
+            // why use HD wallets ?
+            // easier control, easier to classify keys for multiple accounts
+
+            // but child keys can recover parent key (non-hardened)
+
+            ExtKey ceoExtKey = new ExtKey();
+            Console.WriteLine($"CEO: {ceoExtKey.ToString(Network.Main)}");
+            ExtKey accountingKey = ceoExtKey.Derive(0, hardened: false);
+
+            ExtPubKey ceoPubKey = ceoExtKey.Neuter();
+
+            // recover ceo key with accounting private key and ceo public key
+            ExtKey ceoKeyRecovered = accountingKey.GetParentExtKey(ceoPubKey);
+            Console.WriteLine($"CEO recovered: {ceoKeyRecovered.ToString(Network.Main)}");
+
+            // create a hardened key
+            var privateCeoExtKey = new ExtKey();
+            Console.WriteLine($"Private CEO: {privateCeoExtKey.ToString(Network.Main)}");
+            var assitantExtKey = privateCeoExtKey.Derive(1, hardened: true);
+
+            ExtPubKey privateCeoPubKey = privateCeoExtKey.Neuter();
+
+            ExtKey privateCeoKeyRecovered = null;
+
+            try
+            {
+                privateCeoKeyRecovered = assitantExtKey.GetParentExtKey(privateCeoPubKey);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"{e.Message}");
+            }
+
+
             Console.ReadLine();
         }
     }
