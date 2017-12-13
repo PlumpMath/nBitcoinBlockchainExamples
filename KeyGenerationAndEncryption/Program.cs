@@ -187,6 +187,40 @@ namespace KeyGenerationAndEncryption
                 Console.WriteLine($"{e.Message}");
             }
 
+            // creating hardened keys via keypath
+            var isNonHardened = new KeyPath("1/2/3").IsHardened;
+            Console.WriteLine(isNonHardened);
+
+            var isHardened = new KeyPath("1/2/3'").IsHardened;
+            Console.WriteLine(isHardened);
+
+            // imagine that the Accounting Department generates 1 parent key for each customer, and a child for each of the customer’s payments.
+            // As the CEO, you want to spend the money on one of these addresses.
+
+            var accountingCeoKey = new ExtKey();
+            string accounting = "1'"; // hardened with apostrophe
+            int customerId = 5;
+            int paymentId = 50;
+            KeyPath path = new KeyPath($"{accounting}/{customerId}/{paymentId}");
+
+            // path: 1/5/50
+            ExtKey paymentKey = accountingCeoKey.Derive(path);
+
+            Console.WriteLine(paymentKey);
+
+
+            // mnemonic code for HD keys BIP 39
+            // used for easy to write keys
+            Mnemonic mnemo = new Mnemonic(Wordlist.English, WordCount.Twelve);
+            ExtKey hdRoot = mnemo.DeriveExtKey("my password");
+            Console.WriteLine(mnemo);
+
+            // recover hdRoot with mnemonic and password
+            mnemo = new Mnemonic("cook insect now grit brand attract belt april lawsuit health face frozen", Wordlist.English);
+            hdRoot = mnemo.DeriveExtKey("my password");
+
+
+            Console.WriteLine(hdRoot);
 
             Console.ReadLine();
         }
