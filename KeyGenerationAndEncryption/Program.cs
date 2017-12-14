@@ -216,11 +216,10 @@ namespace KeyGenerationAndEncryption
             Console.WriteLine(mnemo);
 
             // recover hdRoot with mnemonic and password
-            mnemo = new Mnemonic("cook insect now grit brand attract belt april lawsuit health face frozen", Wordlist.English);
-            hdRoot = mnemo.DeriveExtKey("my password");
+            mnemo = new Mnemonic(mnemo.ToString(), Wordlist.English);
+            ExtKey recoverdHdRoot = mnemo.DeriveExtKey("my password");
 
-
-            Console.WriteLine(hdRoot);
+            Console.WriteLine(hdRoot.PrivateKey == recoverdHdRoot.PrivateKey);
 
             Console.ReadLine();
         }
