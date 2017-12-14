@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NBitcoin;
 using NBitcoin.Crypto;
+using NBitcoin.Stealth;
 
 namespace KeyGenerationAndEncryption
 {
@@ -220,6 +221,34 @@ namespace KeyGenerationAndEncryption
             ExtKey recoverdHdRoot = mnemo.DeriveExtKey("my password");
 
             Console.WriteLine(hdRoot.PrivateKey == recoverdHdRoot.PrivateKey);
+
+
+            // dark wallet
+            // Prevent outdated backups
+            // Delegate key / address generation to an untrusted peer
+
+            // bonus feature: only share one address (StealthAddress)
+
+            var scanKey = new Key();
+            var spendKey = new Key();
+            var stealthAddress = new BitcoinStealthAddress(
+                scanKey: scanKey.PubKey,
+                pubKeys: new[] { spendKey.PubKey},
+                signatureCount: 1,
+                bitfield: null,
+                network: Network.Main
+                );
+
+            // payer will take StealthAddress and generate temp key called Ephem Key, and generate a Stealth Pub Key
+            // then they package the Ephem PubKey in Stealth Metadata obj embedded in OP_RETURN
+            // they will also add the output to the generated bitcoin address (Stealth pub key)
+
+            //The creation of the EphemKey is an implementation detail
+            // it can be omitted as NBitcoin will generate one automatically:
+            var ephemKey = new Key();
+            var transaction = new Transaction();
+            stealthAddress.SendTo(transaction, Money.Coins(1.0m), ephemKey);
+            Console.WriteLine(transaction);
 
             Console.ReadLine();
         }
