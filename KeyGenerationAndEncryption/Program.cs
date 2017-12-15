@@ -250,6 +250,19 @@ namespace KeyGenerationAndEncryption
             stealthAddress.SendTo(transaction, Money.Coins(1.0m), ephemKey);
             Console.WriteLine(transaction);
 
+            // the Scanner knows the StealthAddress
+            // and recovers the Stealth PubKey and Bitcoin Address with the Scan Key
+
+            // scanner then checks if if one of the tx corresponds to the address
+            // if true, Scanner notifies the Receiver about tx
+
+            // the receiver can get the private key of the address with their spend key
+
+            // note: a StealthAddress can have mulitple spend pubkeys 9multi sig)
+
+           // limit: use of OP_RETURN makes embedding data in tx difficult
+           // OP_RETURN limit is 40 bytes
+
             Console.ReadLine();
         }
     }
