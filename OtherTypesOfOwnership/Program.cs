@@ -11,7 +11,7 @@ namespace OtherTypesOfOwnership
     {
         private static void Main(string[] args)
         {
-            // P2PK[H] (pay to public key [hash])
+            // P2PKH (pay to public key hash) - private key -> public key -> pubilc key hash -> script pub key
 
             var publicKeyHash = new Key().PubKey.Hash;
             var bitcoinAddress = publicKeyHash.GetAddress(Network.Main);
@@ -30,6 +30,34 @@ namespace OtherTypesOfOwnership
             // and vice versa
             var sameBitconAddress = scriptPubKey.GetDestinationAddress(Network.Main);
             Console.WriteLine(bitcoinAddress == sameBitconAddress);
+
+
+            // P2PK (pay to public key) - private key -> public key -> script pub key
+            Block genesisBlock = Network.Main.GetGenesis();
+            var firstTransactionEver = genesisBlock.Transactions.First();
+            var firstOutPutEver = firstTransactionEver.Outputs.First();
+
+            var firstScriptPubKey = firstOutPutEver.ScriptPubKey;
+            BitcoinAddress firstBitcoinAddress = firstScriptPubKey.GetDestinationAddress(Network.Main);
+
+            Console.WriteLine(firstBitcoinAddress == null);
+            Console.WriteLine(firstTransactionEver.ToString());
+
+            var key = new Key();
+            Console.WriteLine($"Pay to public key: {key.PubKey.ScriptPubKey}");
+            Console.WriteLine($"Py to public key hash: {key.PubKey.Hash.ScriptPubKey}");
+
+
+            Console.ReadLine();
+
+            // why P2PKH is used:
+
+            // 1. ECC is vulnerable to a modified Shor's algorithim for solving the discrete logarithim problem on ECs
+            // (quantum computers retrieving private keys from public keys)
+            // however, not reusing addresses avoids this risk
+
+            // 2.as the hash is smaller (20 bytes), it's easier to embed into small storage units, e.g., QR codes
+
         }
     }
 }
