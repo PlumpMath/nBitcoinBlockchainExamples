@@ -45,10 +45,8 @@ namespace OtherTypesOfOwnership
 
             var key = new Key();
             Console.WriteLine($"Pay to public key: {key.PubKey.ScriptPubKey}");
-            Console.WriteLine($"Py to public key hash: {key.PubKey.Hash.ScriptPubKey}");
+            Console.WriteLine($"Pay to public key hash: {key.PubKey.Hash.ScriptPubKey}");
 
-
-            Console.ReadLine();
 
             // why P2PKH is used:
 
@@ -58,6 +56,23 @@ namespace OtherTypesOfOwnership
 
             // 2.as the hash is smaller (20 bytes), it's easier to embed into small storage units, e.g., QR codes
 
+
+            // P2WPKH  (pay to witness public key hash)
+
+            // the signature contains same info as P2PKH spend
+            // but is located in the witness instead of the scriptSig
+
+            // ScriptPubKey is changed
+            // from: OP_DUP OP_HASH160 <public-key-hash> OP_EQUALVERIFY OP_CHECKSIG
+            // to: 0 <public-key-hash>
+
+            // get ScriptPubKey from a public key
+            var key2 = new Key();
+            Console.WriteLine(key2.PubKey.WitHash.ScriptPubKey);
+
+
+
+            Console.ReadLine();
         }
     }
 }
