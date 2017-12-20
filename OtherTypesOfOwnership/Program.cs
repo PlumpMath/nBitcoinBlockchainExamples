@@ -92,7 +92,7 @@ namespace OtherTypesOfOwnership
 
             // multi sig received a coin in a tx:
             var received = new Transaction();
-            received.Outputs.Add(new TxOut(Money.Coins(1.0m), scriptPubKey));
+            received.Outputs.Add(new TxOut(Money.Coins(1.0m), multiScriptPubKey));
 
             // bob and alice agree to pay nico 1.0 btc
 
@@ -123,6 +123,16 @@ namespace OtherTypesOfOwnership
                 // because unsigned transaction has alread been signed by Alice priv key above
                 .SignTransaction(aliceSigned);
             
+
+            // now combine both sigs into 1 tx
+            Transaction fullySigned = builder
+                .AddCoins(coin)
+                // technically, combinesignatures is not needed as bob signed alice's signed tx,
+                // combinesignatures is needed if both signers signed the unsigned tx
+                .CombineSignatures(aliceSigned, bobSigned);
+
+            Console.WriteLine("---");
+            Console.WriteLine(fullySigned);
 
             Console.ReadLine();
         }
