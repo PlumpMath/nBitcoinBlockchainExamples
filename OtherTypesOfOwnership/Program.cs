@@ -131,8 +131,58 @@ namespace OtherTypesOfOwnership
                 // combinesignatures is needed if both signers signed the unsigned tx
                 .CombineSignatures(aliceSigned, bobSigned);
 
-            Console.WriteLine("---");
             Console.WriteLine(fullySigned);
+
+            ////
+            // P2SH (pay to script hash)
+            ////
+
+            // recently native pay to multi sig and native pay to public key are never used directly
+            // instead they are wrapped into Pay To Script Hash
+
+
+            // P2SH is an easy way to represent a scriptPubKey as a simple BitcoinScriptAddress
+            var bob2 = new Key();
+            var alice2 = new Key();
+            var satoshi2 = new Key();
+
+            var paymentScript = PayToMultiSigTemplate
+                .Instance
+                .GenerateScriptPubKey(2, bob.PubKey, alice.PubKey, satoshi.PubKey).PaymentScript;
+
+            // the P2SH scriptPubKey represent the hash of the multi-sig script: redeemScript.Hash.ScriptPubKey
+            Console.WriteLine(paymentScript);
+
+            // since it's a hash, can easily convert to base58
+            // in P2SH payments, the hash of the redeem script is referred to as the scriptPubKey
+            Console.WriteLine(paymentScript.Hash.GetAddress(Network.Main));
+
+
+            // anyone can send payment to such an address and only see the hash of the redeem script
+            // with no knowledge of the redeem script, or the fact that it's a multi sig
+
+
+            // signing the tx is similar to previous methods,
+            // only difference being that you also provide the redeem script
+            Script redeemScript = 
+                PayToMultiSigTemplate
+                .Instance
+                .GenerateScriptPubKey(2, bob2.PubKey, alice2.PubKey, satoshi2.PubKey);
+
+            var receivedTx = new Transaction();
+
+            // WARNING: payment is sent to redeemScript.Hash and not to redeemScript
+            receivedTx.Outputs.Add(new TxOut(Money.Coins(1.0m), redeemScript.Hash));
+
+            // when the owners of the multi sig address wan to spend the coins,
+            // the need to create a ScriptCoin
+            ScriptCoin scriptCoin = receivedTx.Outputs
+                .AsCoins()
+                .First()
+                .ToScriptCoin(redeemScript);
+
+
+            // the rest of the code converning tx generation and signing is exactly the same
 
             Console.ReadLine();
         }
